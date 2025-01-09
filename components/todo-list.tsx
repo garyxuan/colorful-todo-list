@@ -17,16 +17,12 @@ interface Todo {
 
 // 定义本地存储的键名
 const STORAGE_KEY = 'colorful-todo-list'
-const COLOR_STORAGE_KEY = 'colorful-todo-list-colors'
 
 interface StorageData {
   todos: Todo[]
   startColor: string
   endColor: string
 }
-
-// 检查是否在浏览器环境中
-const isBrowser = typeof window !== 'undefined'
 
 export default function TodoList() {
   // 使用 useState 的函数形式来避免水合错误
