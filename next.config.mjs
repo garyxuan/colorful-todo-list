@@ -5,6 +5,8 @@ const nextConfig = {
     images: {
         unoptimized: true, // GitHub Pages 不支持 Next.js 的图片优化
     },
+    assetPrefix: '/colorful-todo-list/',
+    trailingSlash: true,
 }
 
 export default nextConfig

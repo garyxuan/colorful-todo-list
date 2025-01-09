@@ -2,6 +2,7 @@
   "name": "todo-list",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://garyxuan.github.io/colorful-todo-list",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -2,15 +2,17 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ] # 当推送到 main 分支时触发
+    branches: [ main ]
 
-# 设置 GITHUB_TOKEN 的权限
 permissions:
   contents: write
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    
+    env:
+      NEXT_PUBLIC_BASE_PATH: /colorful-todo-list
 
     steps:
       - name: Checkout
@@ -20,7 +22,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'npm' # 添加 npm 缓存
+          cache: 'npm'
 
       - name: Install Dependencies
         run: npm install
@@ -28,9 +30,12 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Add .nojekyll file
+        run: touch ./out/.nojekyll
+
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: out # Next.js 静态导出的目录
-          branch: gh-pages # 部署到 gh-pages 分支
-          clean: true # 清理旧文件 
+          folder: out
+          branch: gh-pages
+          clean: true 
