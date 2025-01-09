@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { Todo } from '@/types/todo';
+import { API_BASE_URL } from '@/lib/api-config';
 
 interface Preferences {
     startColor: string;
@@ -78,7 +79,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
     const login = useCallback(async (email: string) => {
         setIsLoading(true);
         try {
-            const response = await fetch('/api/auth', {
+            const response = await fetch(`${API_BASE_URL}/auth`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -132,7 +133,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
 
         setIsLoading(true);
         try {
-            const response = await fetch('/api/preferences', {
+            const response = await fetch(`${API_BASE_URL}/preferences`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
