@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -15,18 +15,70 @@ interface Todo {
   completed: boolean
 }
 
+// 定义本地存储的键名
+const STORAGE_KEY = 'colorful-todo-list'
+const COLOR_STORAGE_KEY = 'colorful-todo-list-colors'
+
+interface StorageData {
+  todos: Todo[]
+  startColor: string
+  endColor: string
+}
+
+// 检查是否在浏览器环境中
+const isBrowser = typeof window !== 'undefined'
+
 export default function TodoList() {
+  // 使用 useState 的函数形式来避免水合错误
+  const [mounted, setMounted] = useState(false)
   const [todos, setTodos] = useState<Todo[]>([])
   const [newTodo, setNewTodo] = useState('')
   const [showSettings, setShowSettings] = useState(false)
-  const [startColor, setStartColor] = useState('#F0E6FA') // Light purple
-  const [endColor, setEndColor] = useState('#E0F2FE') // Light indigo
+  const [startColor, setStartColor] = useState('#F0E6FA')
+  const [endColor, setEndColor] = useState('#E0F2FE')
 
   const { language, setLanguage, t } = useLanguage()
 
+  // 在组件挂载后再加载本地存储的数据
+  useEffect(() => {
+    const loadStoredData = () => {
+      try {
+        const storedData = localStorage.getItem(STORAGE_KEY)
+        if (storedData) {
+          const data: StorageData = JSON.parse(storedData)
+          setTodos(data.todos)
+          setStartColor(data.startColor)
+          setEndColor(data.endColor)
+        }
+      } catch (error) {
+        console.error('Failed to load data from localStorage:', error)
+      }
+    }
+
+    loadStoredData()
+    setMounted(true)
+  }, [])
+
+  // 保存数据到本地存储
+  useEffect(() => {
+    if (!mounted) return
+
+    try {
+      const data: StorageData = {
+        todos,
+        startColor,
+        endColor
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    } catch (error) {
+      console.error('Failed to save to localStorage:', error)
+    }
+  }, [todos, startColor, endColor, mounted])
+
   const addTodo = () => {
     if (newTodo.trim() !== '') {
-      setTodos([...todos, { id: Date.now(), text: newTodo, completed: false }])
+      const newTodos = [...todos, { id: Date.now(), text: newTodo, completed: false }]
+      setTodos(newTodos)
       setNewTodo('')
     }
   }
@@ -55,6 +107,28 @@ export default function TodoList() {
 
   const toggleLanguage = () => {
     setLanguage(language === 'en' ? 'zh' : 'en')
+  }
+
+  // 如果组件还没挂载，返回初始UI状态
+  if (!mounted) {
+    return (
+      <div className="max-w-md mx-auto mt-10 p-6 rounded-lg shadow-lg"
+        style={{ background: `linear-gradient(to bottom right, #F0E6FA, #E0F2FE)` }}>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-800">{t('todoList')}</h1>
+        </div>
+        <div className="mb-6">
+          <div className="flex justify-between mb-2">
+            <span className="text-sm font-medium text-gray-700">{t('progress')}</span>
+            <span className="text-sm font-medium text-gray-700">
+              0 / 0 {t('completed')}
+            </span>
+          </div>
+          <Progress value={0} className="w-full h-2 bg-white bg-opacity-50 [&>div]:bg-purple-600" />
+        </div>
+        {/* 其他初始UI内容 */}
+      </div>
+    )
   }
 
   return (

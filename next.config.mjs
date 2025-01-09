@@ -1,12 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    output: 'export',  // 启用静态导出
-    basePath: '/colorful-todo-list', // 设置基础路径为你的仓库名
+    output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
+    basePath: process.env.NODE_ENV === 'production' ? '/colorful-todo-list' : '',
     images: {
-        unoptimized: true, // GitHub Pages 不支持 Next.js 的图片优化
+        unoptimized: true,
     },
-    assetPrefix: '/colorful-todo-list/',
-    trailingSlash: true,
+    assetPrefix: process.env.NODE_ENV === 'production' ? '/colorful-todo-list/' : '',
+    trailingSlash: process.env.NODE_ENV === 'production',
 }
 
 export default nextConfig
