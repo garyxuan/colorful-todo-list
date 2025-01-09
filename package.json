@@ -4,20 +4,29 @@
   "private": true,
   "homepage": "https://garyxuan.github.io/colorful-todo-list",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "NODE_ENV=development next dev",
+    "dev:prod": "NODE_ENV=production next dev",
+    "build": "NODE_ENV=production next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "preview": "npm run build && npm run start",
+    "db:init": "ts-node --project scripts/tsconfig.json scripts/init-db.ts"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.1.3",
+    "@radix-ui/react-dialog": "^1.1.4",
     "@radix-ui/react-label": "^2.1.1",
     "@radix-ui/react-progress": "^1.1.1",
     "@radix-ui/react-slot": "^1.1.1",
+    "@radix-ui/react-switch": "^1.1.2",
+    "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "geist": "^1.3.1",
+    "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.469.0",
+    "mongodb": "^6.12.0",
+    "mongoose": "^8.9.3",
     "next": "14.2.16",
     "react": "^18",
     "react-dom": "^18",
@@ -25,6 +34,8 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -32,6 +43,7 @@
     "eslint-config-next": "14.2.16",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

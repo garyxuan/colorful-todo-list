@@ -1,9 +1,6 @@
-/*
- * @Author: garyxuan
- * @Date: 2025-01-09 11:14:14
- * @Description: 
- */
-import TodoList from '../components/todo-list'
+'use client'
+
+import { TodoList } from '../components/todo-list'
 import { LanguageProvider } from '../app/contexts/LanguageContext'
 
 export default function Home() {
