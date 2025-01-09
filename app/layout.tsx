@@ -6,15 +6,22 @@
 import './globals.css'
 import { GeistSans } from 'geist/font/sans'
 
+const basePath = process.env.NODE_ENV === 'production' ? '/colorful-todo-list' : ''
+
 export const metadata = {
   title: 'Colorful Todo List',
   description: 'A beautiful and colorful todo list application',
-  manifest: '/manifest.json',
+  manifest: `${basePath}/manifest.json`,
   icons: {
-    apple: [
-      { url: '/icons/icon-192x192.png' },
+    icon: [
+      { url: `${basePath}/favicon.ico` },
+      { url: `${basePath}/icons/icon-16x16.png`, sizes: '16x16', type: 'image/png' },
+      { url: `${basePath}/icons/icon-32x32.png`, sizes: '32x32', type: 'image/png' },
     ],
-    shortcut: ['/favicon.ico'],
+    apple: [
+      { url: `${basePath}/icons/icon-192x192.png` },
+    ],
+    shortcut: [`${basePath}/favicon.ico`],
   },
   appleWebApp: {
     capable: true,
@@ -37,7 +44,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={GeistSans.className}>
       <head>
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="icon" href={`${basePath}/favicon.ico`} sizes="any" />
+        <link rel="icon" href={`${basePath}/icons/icon-16x16.png`} type="image/png" sizes="16x16" />
+        <link rel="icon" href={`${basePath}/icons/icon-32x32.png`} type="image/png" sizes="32x32" />
+        <link rel="apple-touch-icon" href={`${basePath}/icons/icon-192x192.png`} />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
