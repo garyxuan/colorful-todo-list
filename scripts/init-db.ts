@@ -12,6 +12,16 @@ async function initDatabase() {
         await dbConnect();
         console.log('Connected successfully');
 
+        // 删除现有的集合
+        console.log('Dropping existing collections...');
+        try {
+            await mongoose.connection.dropCollection('users');
+            await mongoose.connection.dropCollection('todos');
+            console.log('Existing collections dropped successfully');
+        } catch (error) {
+            console.log('No existing collections to drop');
+        }
+
         // 创建用户集合
         const userSchema = new mongoose.Schema({
             email: {
@@ -49,6 +59,12 @@ async function initDatabase() {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'User',
                 required: true,
+            },
+            id: {
+                type: String,
+                required: true,
+                index: true,
+                unique: true,
             },
             text: {
                 type: String,

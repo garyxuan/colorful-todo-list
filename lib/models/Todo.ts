@@ -6,6 +6,12 @@ const todoSchema = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
+    id: {
+        type: String,
+        required: true,
+        index: true,
+        unique: true,
+    },
     text: {
         type: String,
         required: true,

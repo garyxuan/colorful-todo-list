@@ -102,7 +102,7 @@ export function TodoList() {
   const addTodo = () => {
     if (newTodo.trim() !== '') {
       const newTodos = [...todos, {
-        id: Date.now(),
+        id: crypto.randomUUID(),
         text: newTodo,
         completed: false,
         color: '#000000',
@@ -113,13 +113,13 @@ export function TodoList() {
     }
   }
 
-  const toggleTodo = (id: number) => {
+  const toggleTodo = (id: string) => {
     setTodos(todos.map(todo =>
       todo.id === id ? { ...todo, completed: !todo.completed } : todo
     ))
   }
 
-  const deleteTodo = (id: number) => {
+  const deleteTodo = (id: string) => {
     setTodos(todos.filter(todo => todo.id !== id))
   }
 

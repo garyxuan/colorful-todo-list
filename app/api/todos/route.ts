@@ -80,6 +80,7 @@ export async function POST(req: Request) {
         if (Array.isArray(todos) && todos.length > 0) {
             const todosWithUserId = todos.map(todo => ({
                 userId: decoded.userId,
+                id: todo.id,
                 text: todo.text,
                 completed: todo.completed,
                 color: todo.color,
