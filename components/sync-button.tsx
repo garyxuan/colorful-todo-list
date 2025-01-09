@@ -9,7 +9,6 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Cloud } from 'lucide-react';
 import { useSync } from '@/app/contexts/SyncContext';
-import { useLanguage } from '@/app/contexts/LanguageContext';
 import { LoginDialog } from '@/components/login-dialog';
 import { AccountDialog } from '@/components/account-dialog';
 import { SyncChoiceDialog } from '@/components/sync-choice-dialog';
@@ -22,17 +21,14 @@ interface SyncButtonProps {
 
 export function SyncButton({ todos, onUpdateTodos }: SyncButtonProps) {
     const { isLoggedIn, isLoading, syncTodos, login } = useSync();
-    const { t } = useLanguage();
     const [showLoginDialog, setShowLoginDialog] = useState(false);
     const [showAccountDialog, setShowAccountDialog] = useState(false);
     const [showSyncChoiceDialog, setShowSyncChoiceDialog] = useState(false);
-    const [pendingEmail, setPendingEmail] = useState('');
 
     const handleLogin = async (email: string) => {
         try {
             await login(email);
             // 登录成功后，显示同步选择对话框
-            setPendingEmail(email);
             setShowLoginDialog(false);
             setShowSyncChoiceDialog(true);
         } catch (error) {
