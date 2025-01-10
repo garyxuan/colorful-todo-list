@@ -1,26 +1,15 @@
-/*
- * @Author: garyxuan
- * @Date: 2025-01-09 17:00:36
- * @Description: 
- */
 import mongoose from 'mongoose';
 
-const MONGODB_CONFIG = {
-    development: {
-        uri: 'mongodb://root:9lgn5rh6@dbconn.sealoshzh.site:47746/?directConnection=true',
-        dbName: 'todo-list-test-db-mongodb-0'
-    },
-    production: {
-        // uri: 'mongodb://root:jsfdx4jf@todo-list-db-mongodb.ns-g0u47zk5.svc:27017',
-        // dbName: 'todo-prod'
-        //暂时用一个库
-        uri: 'mongodb://root:9lgn5rh6@dbconn.sealoshzh.site:47746/?directConnection=true',
-        dbName: 'todo-list-test-db-mongodb-0'
-    }
-} as const;
+type dbConfig = {
+    uri: string;
+    dbName: string;
+}
 
 const env = process.env.NODE_ENV || 'development';
-const config = MONGODB_CONFIG[env as keyof typeof MONGODB_CONFIG];
+const config: dbConfig = {
+    uri: process.env.MONGODB_URI || '',
+    dbName: process.env.MONGODB_DB || ''
+};
 
 if (!config) {
     throw new Error(`Invalid environment: ${env}`);
