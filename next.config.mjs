@@ -12,6 +12,20 @@ const nextConfig = {
         });
         return config;
     },
+    // 确保静态资源正确加载
+    async headers() {
+        return [
+            {
+                source: '/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=31536000, immutable',
+                    },
+                ],
+            },
+        ];
+    },
 }
 
 export default nextConfig
