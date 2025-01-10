@@ -3,10 +3,19 @@
  * @Date: 2025-01-09 11:14:14
  * @Description: 
  */
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import './globals.css'
 import { Providers } from '@/components/providers'
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  minimumScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: 'cover',
+}
 
 export const metadata: Metadata = {
   title: 'Colorful Todo List',
@@ -41,15 +50,6 @@ export const metadata: Metadata = {
     statusBarStyle: 'default',
     title: 'Colorful Todo List',
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    minimumScale: 1,
-    maximumScale: 5,
-    userScalable: true,
-    viewportFit: 'cover',
-  },
-  themeColor: '#F0E6FA',
 }
 
 export default function RootLayout({
