@@ -4,7 +4,13 @@
  * @Description: 
  */
 const getApiBaseUrl = () => {
-    // 使用环境变量中的配置，如果没有则默认使用相对路径
+    // GitHub Pages 环境
+    if (typeof window !== 'undefined' && window.location.hostname.includes('github.io')) {
+        // 使用 Vercel 的 API 地址
+        return 'https://colorful-todo-list-kappa.vercel.app/api';
+    }
+
+    // Vercel 环境或本地开发环境
     return process.env.NEXT_PUBLIC_API_BASE_URL || '/api';
 };
 
