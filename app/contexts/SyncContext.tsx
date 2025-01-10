@@ -17,7 +17,7 @@ interface SyncContextType {
     preferences: Preferences;
     login: (email: string) => Promise<void>;
     logout: () => void;
-    syncTodos: (todos: Todo[]) => Promise<void>;
+    syncTodos: (todos: Todo[]) => Promise<Todo[]>;
     updatePreferences: (preferences: Preferences) => Promise<void>;
     autoSync: boolean;
     setAutoSync: (value: boolean) => void;
@@ -36,7 +36,7 @@ const SyncContext = createContext<SyncContextType>({
     preferences: defaultPreferences,
     login: async () => { },
     logout: () => { },
-    syncTodos: async () => { },
+    syncTodos: async () => [],
     updatePreferences: async () => { },
     autoSync: true,
     setAutoSync: () => { },
@@ -168,30 +168,47 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
     }, [token, isLoggedIn]);
 
     const syncTodos = useCallback(async (todos: Todo[]) => {
-        if (!token || !isLoggedIn) return;
+        if (!token || !isLoggedIn) return todos;
 
         setIsLoading(true);
         try {
-            console.log('Syncing todos:', todos); // 添加日志
-            const response = await fetch(`${API_BASE_URL}/todos`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify({ todos }),
-            });
+            if (todos.length === 0) {
+                // 如果传入空数组，则从服务器获取数据
+                const response = await fetch(`${API_BASE_URL}/todos`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                console.error('Sync failed:', errorData); // 添加日志
-                throw new Error(errorData.details || '同步失败');
+                if (!response.ok) {
+                    throw new Error('获取云端数据失败');
+                }
+
+                const data = await response.json();
+                setLastSync(new Date());
+                localStorage.setItem('lastSync', new Date().toISOString());
+                return data.todos;
+            } else {
+                // 上传本地数据到云端
+                const response = await fetch(`${API_BASE_URL}/todos`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ todos }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.details || '同步失败');
+                }
+
+                setLastSync(new Date());
+                localStorage.setItem('lastSync', new Date().toISOString());
+                return todos;
             }
-
-            const data = await response.json();
-            console.log('Sync success:', data); // 添加日志
-            setLastSync(new Date());
-            localStorage.setItem('lastSync', new Date().toISOString());
         } catch (error) {
             console.error('Sync error:', error instanceof Error ? error.message : error);
             if (error instanceof Error && error.stack) {

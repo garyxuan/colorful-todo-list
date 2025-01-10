@@ -13,7 +13,6 @@ import { LoginDialog } from '@/components/login-dialog';
 import { AccountDialog } from '@/components/account-dialog';
 import { SyncChoiceDialog } from '@/components/sync-choice-dialog';
 import { Todo } from '@/types/todo';
-import { API_BASE_URL } from '@/lib/api-config';
 
 interface SyncButtonProps {
     todos: Todo[];
@@ -46,17 +45,8 @@ export function SyncButton({ todos, onUpdateTodos }: SyncButtonProps) {
                 await syncTodos(todos);
             } else {
                 // 从云端下载数据
-                const response = await fetch(`${API_BASE_URL}/todos`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-                if (!response.ok) {
-                    throw new Error('Failed to fetch cloud data');
-                }
-                const data = await response.json();
-                // 更新本地todos
-                onUpdateTodos(data.todos);
+                const cloudTodos = await syncTodos([]);  // 发送空数组来获取云端数据
+                onUpdateTodos(cloudTodos);
             }
             setShowSyncChoiceDialog(false);
         } catch (error) {

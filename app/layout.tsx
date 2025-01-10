@@ -6,24 +6,42 @@
 import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import './globals.css'
-import { SyncProvider } from './contexts/SyncContext'
+import { Providers } from '@/components/providers'
 
 export const metadata: Metadata = {
-  title: 'Todo List',
-  description: 'A simple todo list app with cloud sync',
+  title: 'Colorful Todo List',
+  description: 'A beautiful and colorful todo list application',
+  icons: {
+    icon: [
+      {
+        url: '/icon.svg',
+        type: 'image/svg+xml',
+      },
+      {
+        url: '/favicon.ico',
+        sizes: 'any',
+      },
+    ],
+    apple: [
+      {
+        url: '/icons/apple-touch-icon.png',
+        sizes: '180x180',
+        type: 'image/png',
+      },
+    ],
+  },
+  manifest: '/manifest.json',
 }
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="en">
-      <body className={GeistSans.className}>
-        <SyncProvider>
-          {children}
-        </SyncProvider>
+    <html lang="en" className={GeistSans.className}>
+      <body>
+        <Providers>{children}</Providers>
       </body>
     </html>
   )
