@@ -17,34 +17,37 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 }
 
+// 根据环境确定图标路径前缀
+const iconPrefix = process.env.GITHUB_ACTIONS ? '.' : '';
+
 export const metadata: Metadata = {
   title: 'Colorful Todo List',
   description: 'A beautiful and colorful todo list application',
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/icons/icon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/icons/icon-32x32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/icons/icon-72x72.png', sizes: '72x72', type: 'image/png' },
-      { url: '/icons/icon-96x96.png', sizes: '96x96', type: 'image/png' },
-      { url: '/icons/icon-128x128.png', sizes: '128x128', type: 'image/png' },
-      { url: '/icons/icon-144x144.png', sizes: '144x144', type: 'image/png' },
-      { url: '/icons/icon-152x152.png', sizes: '152x152', type: 'image/png' },
-      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+      { url: `${iconPrefix}/favicon.ico`, sizes: 'any' },
+      { url: `${iconPrefix}/icons/icon-16x16.png`, sizes: '16x16', type: 'image/png' },
+      { url: `${iconPrefix}/icons/icon-32x32.png`, sizes: '32x32', type: 'image/png' },
+      { url: `${iconPrefix}/icons/icon-72x72.png`, sizes: '72x72', type: 'image/png' },
+      { url: `${iconPrefix}/icons/icon-96x96.png`, sizes: '96x96', type: 'image/png' },
+      { url: `${iconPrefix}/icons/icon-128x128.png`, sizes: '128x128', type: 'image/png' },
+      { url: `${iconPrefix}/icons/icon-144x144.png`, sizes: '144x144', type: 'image/png' },
+      { url: `${iconPrefix}/icons/icon-152x152.png`, sizes: '152x152', type: 'image/png' },
+      { url: `${iconPrefix}/icons/icon-192x192.png`, sizes: '192x192', type: 'image/png' },
+      { url: `${iconPrefix}/icons/icon-512x512.png`, sizes: '512x512', type: 'image/png' },
     ],
-    shortcut: [{ url: '/favicon.ico' }],
+    shortcut: [{ url: `${iconPrefix}/favicon.ico` }],
     apple: [
-      { url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: `${iconPrefix}/icons/apple-touch-icon.png`, sizes: '180x180', type: 'image/png' },
     ],
     other: [
       {
         rel: 'apple-touch-icon',
-        url: '/icons/apple-touch-icon.png',
+        url: `${iconPrefix}/icons/apple-touch-icon.png`,
       },
     ],
   },
-  manifest: '/manifest.json',
+  manifest: `${iconPrefix}/manifest.json`,
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',

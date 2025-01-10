@@ -8,6 +8,7 @@ const nextConfig = {
         images: {
             unoptimized: true,
         },
+        assetPrefix: '/colorful-todo-list',
     } : {
         // Vercel 环境：完整功能
         images: {

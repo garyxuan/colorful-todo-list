@@ -30,6 +30,11 @@ jobs:
           GITHUB_ACTIONS: true
           NEXT_PUBLIC_API_BASE_URL: 'https://colorful-todo-list-kappa.vercel.app/api'
 
+      - name: Update manifest.json for GitHub Pages
+        run: |
+          sed -i 's|"start_url": "/"|"start_url": "."|g' out/manifest.json
+          sed -i 's|"src": "/|"src": "./|g' out/manifest.json
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
