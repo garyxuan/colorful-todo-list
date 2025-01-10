@@ -9,6 +9,9 @@ import dbConnect from '@/lib/db';
 import User from '@/lib/models/User';
 import jwt from 'jsonwebtoken';
 
+// 设置为动态路由
+export const dynamic = 'force-dynamic';
+
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // 验证JWT token

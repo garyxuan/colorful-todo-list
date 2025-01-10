@@ -10,6 +10,9 @@ import User from '@/lib/models/User';
 import Todo from '@/lib/models/Todo';
 import jwt from 'jsonwebtoken';
 
+// 设置为动态路由
+export const dynamic = 'force-dynamic';
+
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // 验证JWT token
@@ -65,16 +68,20 @@ export async function POST(req: Request) {
         }
 
         const { todos } = await req.json();
+        console.log('Received todos:', todos);
 
         await dbConnect();
+        console.log('Database connected');
 
         // 更新用户的最后同步时间
-        await User.findByIdAndUpdate(decoded.userId, {
+        const updatedUser = await User.findByIdAndUpdate(decoded.userId, {
             lastSync: new Date()
         });
+        console.log('User updated:', updatedUser);
 
         // 删除用户的所有待办事项
-        await Todo.deleteMany({ userId: decoded.userId });
+        const deleteResult = await Todo.deleteMany({ userId: decoded.userId });
+        console.log('Deleted todos:', deleteResult);
 
         // 创建新的待办事项
         if (Array.isArray(todos) && todos.length > 0) {
@@ -86,15 +93,20 @@ export async function POST(req: Request) {
                 color: todo.color,
                 order: todo.order
             }));
+            console.log('Prepared todos:', todosWithUserId);
 
-            await Todo.insertMany(todosWithUserId);
+            const insertedTodos = await Todo.insertMany(todosWithUserId);
+            console.log('Inserted todos:', insertedTodos);
         }
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error('Sync todos error:', error);
+        console.error('Sync todos error details:', error instanceof Error ? error.message : error);
+        if (error instanceof Error && error.stack) {
+            console.error('Stack trace:', error.stack);
+        }
         return NextResponse.json(
-            { error: '同步失败' },
+            { error: '同步失败', details: error instanceof Error ? error.message : '未知错误' },
             { status: 500 }
         );
     }

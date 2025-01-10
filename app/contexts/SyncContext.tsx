@@ -129,7 +129,12 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     const updatePreferences = useCallback(async (newPreferences: Preferences) => {
-        if (!token || !isLoggedIn) return;
+        if (!token || !isLoggedIn) {
+            // 即使未登录也更新本地状态
+            setPreferences(newPreferences);
+            localStorage.setItem('preferences', JSON.stringify(newPreferences));
+            return;
+        }
 
         setIsLoading(true);
         try {
@@ -167,7 +172,8 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
 
         setIsLoading(true);
         try {
-            const response = await fetch('/api/todos', {
+            console.log('Syncing todos:', todos); // 添加日志
+            const response = await fetch(`${API_BASE_URL}/todos`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -177,13 +183,20 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
             });
 
             if (!response.ok) {
-                throw new Error('同步失败');
+                const errorData = await response.json().catch(() => ({}));
+                console.error('Sync failed:', errorData); // 添加日志
+                throw new Error(errorData.details || '同步失败');
             }
 
+            const data = await response.json();
+            console.log('Sync success:', data); // 添加日志
             setLastSync(new Date());
             localStorage.setItem('lastSync', new Date().toISOString());
         } catch (error) {
-            console.error('Sync error:', error);
+            console.error('Sync error:', error instanceof Error ? error.message : error);
+            if (error instanceof Error && error.stack) {
+                console.error('Stack trace:', error.stack);
+            }
             throw error;
         } finally {
             setIsLoading(false);

@@ -2,15 +2,11 @@
   "name": "todo-list",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://garyxuan.github.io/colorful-todo-list",
   "scripts": {
-    "dev": "NODE_ENV=development next dev",
-    "dev:prod": "NODE_ENV=production next dev",
-    "build": "NODE_ENV=production next build",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "preview": "npm run build && npm run start",
-    "db:init": "ts-node --project scripts/tsconfig.json scripts/init-db.ts"
+    "lint": "next lint"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.1.3",

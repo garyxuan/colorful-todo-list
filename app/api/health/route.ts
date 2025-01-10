@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import mongoose from 'mongoose';
 
+// 设置为动态路由
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
     try {
         // 检查当前连接状态
