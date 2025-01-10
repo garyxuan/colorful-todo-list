@@ -26,6 +26,12 @@ const nextConfig = {
             },
         ];
     },
+    // 确保静态文件被正确复制
+    distDir: '.next',
+    // 静态文件配置
+    publicRuntimeConfig: {
+        staticFolder: '/public',
+    },
 }
 
 export default nextConfig
