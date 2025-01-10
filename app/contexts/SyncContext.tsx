@@ -9,37 +9,37 @@ interface Preferences {
     endColor: string;
 }
 
-interface SyncContextType {
-    isLoggedIn: boolean;
-    userEmail: string | null;
-    lastSync: Date | null;
-    isLoading: boolean;
-    preferences: Preferences;
-    login: (email: string) => Promise<void>;
-    logout: () => void;
-    syncTodos: (todos: Todo[]) => Promise<Todo[]>;
-    updatePreferences: (preferences: Preferences) => Promise<void>;
-    autoSync: boolean;
-    setAutoSync: (value: boolean) => void;
-}
-
 const defaultPreferences: Preferences = {
     startColor: '#F0E6FA',
     endColor: '#E0F2FE'
 };
 
-const SyncContext = createContext<SyncContextType>({
+const SyncContext = createContext<{
+    isLoggedIn: boolean;
+    userEmail: string | null;
+    lastSync: Date | null;
+    isLoading: boolean;
+    autoSync: boolean;
+    preferences: Preferences;
+    login: (email: string) => Promise<void>;
+    logout: () => void;
+    syncTodos: (todos: Todo[]) => Promise<Todo[]>;
+    updatePreferences: (preferences: Preferences) => Promise<void>;
+    setAutoSync: (autoSync: boolean) => void;
+    handleLoginSuccess: (token: string) => void;
+}>({
     isLoggedIn: false,
     userEmail: null,
     lastSync: null,
     isLoading: false,
+    autoSync: true,
     preferences: defaultPreferences,
     login: async () => { },
     logout: () => { },
     syncTodos: async () => [],
     updatePreferences: async () => { },
-    autoSync: true,
     setAutoSync: () => { },
+    handleLoginSuccess: () => { },
 });
 
 export function SyncProvider({ children }: { children: React.ReactNode }) {
@@ -74,6 +74,24 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
         if (savedAutoSync !== null) {
             setAutoSync(savedAutoSync === 'true');
         }
+    }, []);
+
+    const handleLoginSuccess = useCallback((token: string) => {
+        setToken(token);
+        setIsLoggedIn(true);
+        // 其他状态会在 API 调用后更新
+    }, []);
+
+    const logout = useCallback(() => {
+        setToken(null);
+        setUserEmail(null);
+        setLastSync(null);
+        setIsLoggedIn(false);
+        setPreferences(defaultPreferences);
+        localStorage.removeItem('token');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('lastSync');
+        localStorage.removeItem('preferences');
     }, []);
 
     const login = useCallback(async (email: string) => {
@@ -115,18 +133,6 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
             setIsLoading(false);
         }
     }, [preferences]);
-
-    const logout = useCallback(() => {
-        setToken(null);
-        setUserEmail(null);
-        setLastSync(null);
-        setIsLoggedIn(false);
-        setPreferences(defaultPreferences);
-        localStorage.removeItem('token');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('lastSync');
-        localStorage.removeItem('preferences');
-    }, []);
 
     const updatePreferences = useCallback(async (newPreferences: Preferences) => {
         if (!token || !isLoggedIn) {
@@ -237,6 +243,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
                     setAutoSync(value);
                     localStorage.setItem('autoSync', String(value));
                 },
+                handleLoginSuccess,
             }}
         >
             {children}

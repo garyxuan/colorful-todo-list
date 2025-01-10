@@ -1,19 +1,7 @@
-/*
- * @Author: garyxuan
- * @Date: 2025-01-09 17:01:07
- * @Description: 
- */
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import dbConnect from '@/lib/db';
-import User from '@/lib/models/User';
 import VerificationCode from '@/lib/models/VerificationCode';
-import jwt from 'jsonwebtoken';
-
-// GitHub Pages 环境下不需要动态路由配置
-// export const dynamic = 'force-dynamic';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // 允许的源
 const allowedOrigins = [
@@ -55,56 +43,38 @@ export async function POST(req: Request) {
             'Access-Control-Allow-Headers': 'Content-Type',
         };
 
-        await dbConnect();
-        const { email, code, preferences } = await req.json();
+        const { email } = await req.json();
 
-        // 验证验证码
-        const verificationCode = await VerificationCode.findOne({
-            email,
-            code,
-            createdAt: { $gt: new Date(Date.now() - 5 * 60 * 1000) } // 5分钟内的验证码
-        });
-
-        if (!verificationCode) {
+        if (!email || !email.includes('@')) {
             return NextResponse.json(
-                { error: '验证码无效或已过期' },
+                { error: '无效的邮箱地址' },
                 { status: 400, headers: corsHeaders }
             );
         }
 
-        // 验证成功后删除验证码
-        await VerificationCode.deleteOne({ _id: verificationCode._id });
+        await dbConnect();
 
-        // 查找或创建用户
-        let user = await User.findOne({ email });
+        // 生成6位随机验证码
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-        if (!user) {
-            user = await User.create({
-                email,
-                lastSync: new Date(),
-                preferences
-            });
-        }
+        // 保存验证码到数据库
+        await VerificationCode.create({
+            email,
+            code
+        });
 
-        // 生成JWT token
-        const token = jwt.sign(
-            { userId: user._id, email: user.email },
-            JWT_SECRET,
-            { expiresIn: '7d' }
-        );
+        // TODO: 这里需要集成邮件发送服务
+        // 目前仅在控制台打印验证码，方便测试
+        console.log(`验证码 ${code} 已发送到邮箱 ${email}`);
 
-        return NextResponse.json({
-            token,
-            user: {
-                email: user.email,
-                lastSync: user.lastSync,
-                preferences: user.preferences || preferences
-            }
-        }, { headers: corsHeaders });
-    } catch (error) {
-        console.error('Auth error:', error);
         return NextResponse.json(
-            { error: '认证失败' },
+            { message: '验证码已发送' },
+            { headers: corsHeaders }
+        );
+    } catch (error) {
+        console.error('Send code error:', error);
+        return NextResponse.json(
+            { error: '发送验证码失败' },
             {
                 status: 500,
                 headers: {

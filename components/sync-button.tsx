@@ -20,22 +20,15 @@ interface SyncButtonProps {
 }
 
 export function SyncButton({ todos, onUpdateTodos }: SyncButtonProps) {
-    const { isLoggedIn, isLoading, syncTodos, login } = useSync();
+    const { isLoggedIn, isLoading, syncTodos, handleLoginSuccess } = useSync();
     const [showLoginDialog, setShowLoginDialog] = useState(false);
     const [showAccountDialog, setShowAccountDialog] = useState(false);
     const [showSyncChoiceDialog, setShowSyncChoiceDialog] = useState(false);
 
-    const handleLogin = async (email: string) => {
-        try {
-            await login(email);
-            // 登录成功后，显示同步选择对话框
-            setShowLoginDialog(false);
-            setShowSyncChoiceDialog(true);
-        } catch (error) {
-            // 如果是新用户，错误会被 LoginDialog 处理
-            // 如果是其他错误，也会被 LoginDialog 处理
-            throw error;
-        }
+    const handleLoginComplete = async (token: string) => {
+        handleLoginSuccess(token);
+        setShowLoginDialog(false);
+        setShowSyncChoiceDialog(true);
     };
 
     const handleSyncChoice = async (uploadLocal: boolean) => {
@@ -51,7 +44,6 @@ export function SyncButton({ todos, onUpdateTodos }: SyncButtonProps) {
             setShowSyncChoiceDialog(false);
         } catch (error) {
             console.error('Sync error:', error);
-            // 可以添加错误提示
         }
     };
 
@@ -79,7 +71,7 @@ export function SyncButton({ todos, onUpdateTodos }: SyncButtonProps) {
             <LoginDialog
                 open={showLoginDialog}
                 onOpenChange={setShowLoginDialog}
-                onLogin={handleLogin}
+                onLoginSuccess={handleLoginComplete}
             />
 
             <AccountDialog
