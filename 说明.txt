@@ -3,3 +3,17 @@
 会触发GitHub Actions，将代码部署到GitHub Pages
 也会触发Vercel，将代码部署到Vercel（同时支持前端和后端代码）
 GitHub Pagesges只支持静态文件部署，所以api请求都会转发到vercel
+
+### 图标问题
+Vercel 环境：
+使用绝对路径（/）
+manifest.json 保持原样
+图标路径正常工作
+GitHub Pages 环境：
+使用相对路径（./）
+在构建时自动修改 manifest.json 中的路径
+通过 iconPrefix 动态设置图标路径
+这样的配置可以确保：
+Vercel 部署不受影响，继续使用绝对路径
+GitHub Pages 部署使用相对路径
+两个环境都能正常显示图标

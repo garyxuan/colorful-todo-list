@@ -14,6 +14,38 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
+// 允许的源
+const allowedOrigins = [
+    'https://garyxuan.github.io',
+    'http://localhost:3000',
+    'http://localhost:4000',
+];
+
+// CORS 预检请求处理
+export async function OPTIONS() {
+    const origin = headers().get('origin') || '';
+
+    // 检查是否是允许的源
+    if (allowedOrigins.includes(origin)) {
+        return new NextResponse(null, {
+            headers: {
+                'Access-Control-Allow-Origin': origin,
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                'Access-Control-Max-Age': '86400',
+            },
+        });
+    }
+
+    return new NextResponse(null, {
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+    });
+}
+
 // 验证JWT token
 async function verifyToken(token: string) {
     try {
@@ -28,30 +60,43 @@ export async function GET() {
     try {
         const headersList = headers();
         const token = headersList.get('authorization')?.split(' ')[1];
+        const origin = headersList.get('origin') || '';
+        const corsHeaders = {
+            'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        };
 
         if (!token) {
-            return NextResponse.json({ error: '未授权' }, { status: 401 });
+            return NextResponse.json({ error: '未授权' }, { status: 401, headers: corsHeaders });
         }
 
         const decoded = await verifyToken(token);
         if (!decoded) {
-            return NextResponse.json({ error: '无效的token' }, { status: 401 });
+            return NextResponse.json({ error: '无效的token' }, { status: 401, headers: corsHeaders });
         }
 
         await dbConnect();
         const user = await User.findById(decoded.userId);
         if (!user) {
-            return NextResponse.json({ error: '用户不存在' }, { status: 404 });
+            return NextResponse.json({ error: '用户不存在' }, { status: 404, headers: corsHeaders });
         }
 
         return NextResponse.json({
             preferences: user.preferences
-        });
+        }, { headers: corsHeaders });
     } catch (error) {
         console.error('Get preferences error:', error);
         return NextResponse.json(
             { error: '获取偏好设置失败' },
-            { status: 500 }
+            {
+                status: 500,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                }
+            }
         );
     }
 }
@@ -61,14 +106,20 @@ export async function PUT(req: Request) {
     try {
         const headersList = headers();
         const token = headersList.get('authorization')?.split(' ')[1];
+        const origin = headersList.get('origin') || '';
+        const corsHeaders = {
+            'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        };
 
         if (!token) {
-            return NextResponse.json({ error: '未授权' }, { status: 401 });
+            return NextResponse.json({ error: '未授权' }, { status: 401, headers: corsHeaders });
         }
 
         const decoded = await verifyToken(token);
         if (!decoded) {
-            return NextResponse.json({ error: '无效的token' }, { status: 401 });
+            return NextResponse.json({ error: '无效的token' }, { status: 401, headers: corsHeaders });
         }
 
         const { preferences } = await req.json();
@@ -81,17 +132,24 @@ export async function PUT(req: Request) {
         );
 
         if (!user) {
-            return NextResponse.json({ error: '用户不存在' }, { status: 404 });
+            return NextResponse.json({ error: '用户不存在' }, { status: 404, headers: corsHeaders });
         }
 
         return NextResponse.json({
             preferences: user.preferences
-        });
+        }, { headers: corsHeaders });
     } catch (error) {
         console.error('Update preferences error:', error);
         return NextResponse.json(
             { error: '更新偏好设置失败' },
-            { status: 500 }
+            {
+                status: 500,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                }
+            }
         );
     }
 } 

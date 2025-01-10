@@ -1,4 +1,10 @@
+/*
+ * @Author: garyxuan
+ * @Date: 2025-01-09 17:01:07
+ * @Description: 
+ */
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
 import dbConnect from '@/lib/db';
 import User from '@/lib/models/User';
 import jwt from 'jsonwebtoken';
@@ -8,8 +14,29 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
+// 允许的源
+const allowedOrigins = [
+    'https://garyxuan.github.io',
+    'http://localhost:3000',
+    'http://localhost:4000',
+];
+
 // CORS 预检请求处理
 export async function OPTIONS() {
+    const origin = headers().get('origin') || '';
+
+    // 检查是否是允许的源
+    if (allowedOrigins.includes(origin)) {
+        return new NextResponse(null, {
+            headers: {
+                'Access-Control-Allow-Origin': origin,
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                'Access-Control-Max-Age': '86400',
+            },
+        });
+    }
+
     return new NextResponse(null, {
         headers: {
             'Access-Control-Allow-Origin': '*',
@@ -21,11 +48,12 @@ export async function OPTIONS() {
 
 export async function POST(req: Request) {
     try {
-        const response = NextResponse.next();
-        // 添加 CORS 头部
-        response.headers.set('Access-Control-Allow-Origin', '*');
-        response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        const origin = headers().get('origin') || '';
+        const corsHeaders = {
+            'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        };
 
         await dbConnect();
         const { email, preferences } = await req.json();
@@ -57,12 +85,19 @@ export async function POST(req: Request) {
                 lastSync: user.lastSync,
                 preferences: user.preferences || preferences // 如果用户没有偏好设置，使用传入的设置
             }
-        });
+        }, { headers: corsHeaders });
     } catch (error) {
         console.error('Auth error:', error);
         return NextResponse.json(
             { error: '认证失败' },
-            { status: 500 }
+            {
+                status: 500,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                }
+            }
         );
     }
 } 
