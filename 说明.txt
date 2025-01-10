@@ -1,0 +1,5 @@
+
+当代码push到main分支之后，
+会触发GitHub Actions，将代码部署到GitHub Pages
+也会触发Vercel，将代码部署到Vercel（同时支持前端和后端代码）
+GitHub Pagesges只支持静态文件部署，所以api请求都会转发到vercel
