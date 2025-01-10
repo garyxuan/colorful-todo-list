@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import mongoose from 'mongoose';
 
-// 设置为动态路由
-export const dynamic = 'force-dynamic';
+// GitHub Pages 环境下不需要动态路由配置
+// export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
