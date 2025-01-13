@@ -63,28 +63,38 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
 
     // 从localStorage恢复状态
     useEffect(() => {
-        const savedToken = localStorage.getItem('token');
-        const savedEmail = localStorage.getItem('userEmail');
-        const savedLastSync = localStorage.getItem('lastSync');
-        const savedAutoSync = localStorage.getItem('autoSync');
-        const savedPreferences = localStorage.getItem('preferences');
+        if (!apiBaseUrl) return;
 
-        if (savedToken && savedEmail) {
-            setToken(savedToken);
-            setUserEmail(savedEmail);
+        // 从 localStorage 恢复状态
+        const storedToken = localStorage.getItem('token');
+        const storedEmail = localStorage.getItem('userEmail');
+        const storedLastSync = localStorage.getItem('lastSync');
+        const storedPreferences = localStorage.getItem('preferences');
+        const storedAutoSync = localStorage.getItem('autoSync');
+
+        if (storedToken && storedEmail) {
+            setToken(storedToken);
+            setUserEmail(storedEmail);
             setIsLoggedIn(true);
-            if (savedLastSync) {
-                setLastSync(new Date(savedLastSync));
-            }
-            if (savedPreferences) {
-                setPreferences(JSON.parse(savedPreferences));
+        }
+
+        if (storedLastSync) {
+            setLastSync(new Date(storedLastSync));
+        }
+
+        if (storedPreferences) {
+            try {
+                setPreferences(JSON.parse(storedPreferences));
+            } catch (error) {
+                console.error('Error parsing stored preferences:', error);
+                setPreferences(defaultPreferences);
             }
         }
 
-        if (savedAutoSync !== null) {
-            setAutoSync(savedAutoSync === 'true');
+        if (storedAutoSync !== null) {
+            setAutoSync(storedAutoSync === 'true');
         }
-    }, []);
+    }, [apiBaseUrl]);
 
     const clearLoginState = useCallback(() => {
         setToken(null);

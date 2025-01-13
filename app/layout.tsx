@@ -69,15 +69,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.className}>
-      <head>
-        {/* 预加载关键资源 */}
-        <link
-          rel="preload"
-          href="/api/auth/me"
-          as="fetch"
-          crossOrigin="anonymous"
-        />
-      </head>
       <body>
         <SyncProvider>
           {children}
