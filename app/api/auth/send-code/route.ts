@@ -1,7 +1,13 @@
+/*
+ * @Author: garyxuan
+ * @Date: 2025-01-10 18:53:08
+ * @Description: 
+ */
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import dbConnect from '@/lib/db';
 import VerificationCode from '@/lib/models/VerificationCode';
+import { sendVerificationCode } from '@/lib/email';
 
 // 允许的源
 const allowedOrigins = [
@@ -63,9 +69,8 @@ export async function POST(req: Request) {
             code
         });
 
-        // TODO: 这里需要集成邮件发送服务
-        // 目前仅在控制台打印验证码，方便测试
-        console.log(`验证码 ${code} 已发送到邮箱 ${email}`);
+        // 发送验证码邮件
+        await sendVerificationCode(email, code);
 
         return NextResponse.json(
             { message: '验证码已发送' },

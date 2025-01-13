@@ -76,13 +76,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
         }
     }, []);
 
-    const handleLoginSuccess = useCallback((token: string) => {
-        setToken(token);
-        setIsLoggedIn(true);
-        // 其他状态会在 API 调用后更新
-    }, []);
-
-    const logout = useCallback(() => {
+    const clearLoginState = useCallback(() => {
         setToken(null);
         setUserEmail(null);
         setLastSync(null);
@@ -93,6 +87,48 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem('lastSync');
         localStorage.removeItem('preferences');
     }, []);
+
+    const handleLoginSuccess = useCallback(async (token: string) => {
+        try {
+            // 保存 token 到本地存储
+            localStorage.setItem('token', token);
+            setToken(token);
+
+            // 获取用户信息
+            const response = await fetch(`${API_BASE_URL}/auth/me`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('获取用户信息失败');
+            }
+
+            const data = await response.json();
+
+            // 更新状态
+            setUserEmail(data.email);
+            setLastSync(new Date(data.lastSync));
+            setPreferences(data.preferences || defaultPreferences);
+            setIsLoggedIn(true);
+
+            // 保存到 localStorage
+            localStorage.setItem('userEmail', data.email);
+            localStorage.setItem('lastSync', data.lastSync);
+            localStorage.setItem('preferences', JSON.stringify(data.preferences || defaultPreferences));
+        } catch (error) {
+            console.error('Login error:', error);
+            // 如果获取用户信息失败，清除登录状态
+            clearLoginState();
+            throw error;
+        }
+    }, [clearLoginState]);
+
+    const logout = useCallback(() => {
+        clearLoginState();
+    }, [clearLoginState]);
 
     const login = useCallback(async (email: string) => {
         setIsLoading(true);

@@ -56,7 +56,7 @@ export async function POST(req: Request) {
         };
 
         await dbConnect();
-        const { email, code, preferences } = await req.json();
+        const { email, code } = await req.json();
 
         // 验证验证码
         const verificationCode = await VerificationCode.findOne({
@@ -82,7 +82,11 @@ export async function POST(req: Request) {
             user = await User.create({
                 email,
                 lastSync: new Date(),
-                preferences
+                password: Math.random().toString(36), // 生成随机密码
+                preferences: {
+                    startColor: '#F0E6FA',
+                    endColor: '#E0F2FE'
+                }
             });
         }
 
@@ -98,7 +102,7 @@ export async function POST(req: Request) {
             user: {
                 email: user.email,
                 lastSync: user.lastSync,
-                preferences: user.preferences || preferences
+                preferences: user.preferences
             }
         }, { headers: corsHeaders });
     } catch (error) {

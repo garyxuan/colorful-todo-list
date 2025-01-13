@@ -35,6 +35,9 @@ export function LoginDialog({ open, onOpenChange, onLoginSuccess }: LoginDialogP
         setError('');
 
         try {
+            console.log('Sending code to:', email);
+            console.log('API URL:', `${API_BASE_URL}/auth/send-code`);
+
             const response = await fetch(`${API_BASE_URL}/auth/send-code`, {
                 method: 'POST',
                 headers: {
@@ -43,7 +46,9 @@ export function LoginDialog({ open, onOpenChange, onLoginSuccess }: LoginDialogP
                 body: JSON.stringify({ email }),
             });
 
+            console.log('Response status:', response.status);
             const data = await response.json();
+            console.log('Response data:', data);
 
             if (!response.ok) {
                 throw new Error(data.error || '发送验证码失败');
@@ -61,6 +66,7 @@ export function LoginDialog({ open, onOpenChange, onLoginSuccess }: LoginDialogP
                 });
             }, 1000);
         } catch (err) {
+            console.error('Error sending code:', err);
             setError(err instanceof Error ? err.message : '发送验证码失败');
         } finally {
             setLoading(false);
@@ -107,12 +113,12 @@ export function LoginDialog({ open, onOpenChange, onLoginSuccess }: LoginDialogP
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>登录</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4 py-4">
-                    <div className="space-y-2">
+                <div className="flex flex-col gap-4 py-4">
+                    <div className="flex flex-col gap-2">
                         <Input
                             type="email"
                             placeholder="请输入邮箱"
@@ -121,17 +127,19 @@ export function LoginDialog({ open, onOpenChange, onLoginSuccess }: LoginDialogP
                             disabled={loading}
                         />
                     </div>
-                    <div className="flex space-x-2">
+                    <div className="flex gap-2">
                         <Input
                             type="text"
                             placeholder="请输入验证码"
                             value={code}
                             onChange={(e) => setCode(e.target.value)}
-                            disabled={loading || !codeSent}
+                            disabled={loading}
                         />
                         <Button
+                            variant="outline"
                             onClick={handleSendCode}
                             disabled={loading || countdown > 0}
+                            className="whitespace-nowrap min-w-[120px]"
                         >
                             {countdown > 0 ? `${countdown}秒后重试` : '发送验证码'}
                         </Button>
