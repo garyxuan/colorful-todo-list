@@ -216,6 +216,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
         try {
             if (todos.length === 0) {
                 // 如果传入空数组，则从服务器获取数据
+                console.log('Fetching todos from server...');
                 const response = await fetch(`${API_BASE_URL}/todos`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -228,11 +229,29 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
                 }
 
                 const data = await response.json();
+                console.log('Received data from server:', data);
+
+                if (!data.todos || !Array.isArray(data.todos)) {
+                    console.error('Invalid data format from server:', data);
+                    throw new Error('服务器返回的数据格式无效');
+                }
+
+                // 确保每个todo都有必要的字段
+                const validTodos = data.todos.map((todo: any) => ({
+                    id: todo.id,
+                    text: todo.text || '',
+                    completed: Boolean(todo.completed),
+                    color: todo.color || '#F0E6FA',
+                    order: Number(todo.order) || 0
+                }));
+
+                console.log('Processed todos:', validTodos);
                 setLastSync(new Date());
                 localStorage.setItem('lastSync', new Date().toISOString());
-                return data.todos;
+                return validTodos;
             } else {
                 // 上传本地数据到云端
+                console.log('Uploading todos to server:', todos);
                 const response = await fetch(`${API_BASE_URL}/todos`, {
                     method: 'POST',
                     headers: {
@@ -252,15 +271,12 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
                 return todos;
             }
         } catch (error) {
-            console.error('Sync error:', error instanceof Error ? error.message : error);
-            if (error instanceof Error && error.stack) {
-                console.error('Stack trace:', error.stack);
-            }
+            console.error('Sync error:', error);
             throw error;
         } finally {
             setIsLoading(false);
         }
-    }, [token, isLoggedIn]);
+    }, [token, isLoggedIn, API_BASE_URL]);
 
     return (
         <SyncContext.Provider
