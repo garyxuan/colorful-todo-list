@@ -20,18 +20,33 @@ const allowedOrigins = [
     'https://garyxuan.github.io',
     'http://localhost:3000',
     'http://localhost:4000',
+    'https://colorful-todo-list-git-main-garyxuans-projects.vercel.app',
+    'https://colorful-todo-list-kappa.vercel.app'
 ];
 
 // CORS 预检请求处理
 export async function OPTIONS() {
     const origin = headers().get('origin') || '';
 
+    // 如果是开发环境，允许所有源
+    if (process.env.NODE_ENV === 'development') {
+        return new NextResponse(null, {
+            headers: {
+                'Access-Control-Allow-Origin': origin,
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                'Access-Control-Max-Age': '86400',
+            },
+        });
+    }
+
+    // 生产环境检查允许的源
     if (allowedOrigins.includes(origin)) {
         return new NextResponse(null, {
             headers: {
                 'Access-Control-Allow-Origin': origin,
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
                 'Access-Control-Max-Age': '86400',
             },
         });
@@ -41,7 +56,7 @@ export async function OPTIONS() {
         headers: {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         },
     });
 }
@@ -50,13 +65,16 @@ export async function POST(req: Request) {
     try {
         const origin = headers().get('origin') || '';
         const corsHeaders = {
-            'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : '*',
+            'Access-Control-Allow-Origin': process.env.NODE_ENV === 'development' ? origin : (allowedOrigins.includes(origin) ? origin : '*'),
             'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         };
 
         await dbConnect();
         const { email, code } = await req.json();
+
+        console.log('Authenticating user:', email);
+        console.log('Verification code:', code);
 
         // 验证验证码
         const verificationCode = await VerificationCode.findOne({
@@ -66,11 +84,14 @@ export async function POST(req: Request) {
         });
 
         if (!verificationCode) {
+            console.log('Invalid or expired verification code');
             return NextResponse.json(
                 { error: '验证码无效或已过期' },
                 { status: 400, headers: corsHeaders }
             );
         }
+
+        console.log('Valid verification code found');
 
         // 验证成功后删除验证码
         await VerificationCode.deleteOne({ _id: verificationCode._id });
@@ -79,6 +100,7 @@ export async function POST(req: Request) {
         let user = await User.findOne({ email });
 
         if (!user) {
+            console.log('Creating new user');
             user = await User.create({
                 email,
                 lastSync: new Date(),
@@ -88,6 +110,8 @@ export async function POST(req: Request) {
                     endColor: '#E0F2FE'
                 }
             });
+        } else {
+            console.log('Existing user found');
         }
 
         // 生成JWT token
@@ -96,6 +120,8 @@ export async function POST(req: Request) {
             JWT_SECRET,
             { expiresIn: '7d' }
         );
+
+        console.log('Generated token for user');
 
         return NextResponse.json({
             token,
@@ -112,9 +138,9 @@ export async function POST(req: Request) {
             {
                 status: 500,
                 headers: {
-                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Origin': process.env.NODE_ENV === 'development' ? headers().get('origin') || '*' : '*',
                     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                    'Access-Control-Allow-Headers': 'Content-Type',
+                    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
                 }
             }
         );

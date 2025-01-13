@@ -20,11 +20,26 @@ const allowedOrigins = [
     'https://garyxuan.github.io',
     'http://localhost:3000',
     'http://localhost:4000',
+    'https://colorful-todo-list-git-main-garyxuans-projects.vercel.app',
+    'https://colorful-todo-list-kappa.vercel.app'
 ];
 
 // CORS 预检请求处理
 export async function OPTIONS() {
     const origin = headers().get('origin') || '';
+    const isDevelopment = process.env.NODE_ENV === 'development';
+
+    // 在开发环境中允许所有源
+    if (isDevelopment) {
+        return new NextResponse(null, {
+            headers: {
+                'Access-Control-Allow-Origin': origin || '*',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                'Access-Control-Max-Age': '86400',
+            },
+        });
+    }
 
     // 检查是否是允许的源
     if (allowedOrigins.includes(origin)) {
@@ -62,23 +77,29 @@ export async function GET() {
         const headersList = headers();
         const token = headersList.get('authorization')?.split(' ')[1];
         const origin = headersList.get('origin') || '';
+        const isDevelopment = process.env.NODE_ENV === 'development';
+
         const corsHeaders = {
-            'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : '*',
+            'Access-Control-Allow-Origin': isDevelopment ? (origin || '*') : (allowedOrigins.includes(origin) ? origin : '*'),
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         };
 
         if (!token) {
+            console.log('No token provided');
             return NextResponse.json({ error: '未授权' }, { status: 401, headers: corsHeaders });
         }
 
         const decoded = await verifyToken(token);
         if (!decoded) {
+            console.log('Invalid token');
             return NextResponse.json({ error: '无效的token' }, { status: 401, headers: corsHeaders });
         }
 
         await dbConnect();
+        console.log('Database connected, fetching todos for user:', decoded.userId);
         const todos = await Todo.find({ userId: decoded.userId }).sort({ createdAt: -1 });
+        console.log('Fetched todos:', todos.length);
 
         return NextResponse.json({ todos }, { headers: corsHeaders });
     } catch (error) {
@@ -103,18 +124,22 @@ export async function POST(req: Request) {
         const headersList = headers();
         const token = headersList.get('authorization')?.split(' ')[1];
         const origin = headersList.get('origin') || '';
+        const isDevelopment = process.env.NODE_ENV === 'development';
+
         const corsHeaders = {
-            'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : '*',
+            'Access-Control-Allow-Origin': isDevelopment ? (origin || '*') : (allowedOrigins.includes(origin) ? origin : '*'),
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         };
 
         if (!token) {
+            console.log('No token provided');
             return NextResponse.json({ error: '未授权' }, { status: 401, headers: corsHeaders });
         }
 
         const decoded = await verifyToken(token);
         if (!decoded) {
+            console.log('Invalid token');
             return NextResponse.json({ error: '无效的token' }, { status: 401, headers: corsHeaders });
         }
 
