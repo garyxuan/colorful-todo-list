@@ -37,7 +37,7 @@ export async function OPTIONS() {
     });
 }
 
-export async function GET(req: Request) {
+export async function GET() {
     try {
         const origin = headers().get('origin') || '';
         const corsHeaders = {
