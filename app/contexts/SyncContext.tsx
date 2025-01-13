@@ -134,7 +134,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
             clearLoginState();
             throw error;
         }
-    }, [clearLoginState]);
+    }, [clearLoginState, apiBaseUrl]);
 
     const logout = useCallback(() => {
         clearLoginState();
@@ -178,7 +178,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
         } finally {
             setIsLoading(false);
         }
-    }, [preferences]);
+    }, [preferences, apiBaseUrl]);
 
     const updatePreferences = useCallback(async (newPreferences: Preferences) => {
         if (!token || !isLoggedIn) {
@@ -217,7 +217,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
         } finally {
             setIsLoading(false);
         }
-    }, [token, isLoggedIn]);
+    }, [token, isLoggedIn, apiBaseUrl]);
 
     const syncTodos = useCallback(async (todos: Todo[]) => {
         if (!token || !isLoggedIn) return todos;
@@ -292,7 +292,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
         } finally {
             setIsLoading(false);
         }
-    }, [token, isLoggedIn]);
+    }, [token, isLoggedIn, apiBaseUrl]);
 
     return (
         <SyncContext.Provider
