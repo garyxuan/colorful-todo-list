@@ -10,9 +10,6 @@ import User from '@/lib/models/User';
 import VerificationCode from '@/lib/models/VerificationCode';
 import jwt from 'jsonwebtoken';
 
-// GitHub Pages 环境下不需要动态路由配置
-export const dynamic = 'force-dynamic';
-
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // 允许的源

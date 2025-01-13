@@ -9,8 +9,6 @@ import dbConnect from '@/lib/db';
 import VerificationCode from '@/lib/models/VerificationCode';
 import { sendVerificationCode } from '@/lib/email';
 
-export const dynamic = 'force-dynamic';
-
 // 允许的源
 const allowedOrigins = [
     'https://garyxuan.github.io',
