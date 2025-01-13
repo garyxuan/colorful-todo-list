@@ -245,14 +245,16 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
                     throw new Error('服务器返回的数据格式无效');
                 }
 
-                // 确保每个todo都有必要的字段
-                const validTodos = data.todos.map((todo: ServerTodo) => ({
-                    id: todo.id,
-                    text: todo.text || '',
-                    completed: Boolean(todo.completed),
-                    color: todo.color || '#F0E6FA',
-                    order: Number(todo.order) || 0
-                }));
+                // 确保每个todo都有必要的字段，并按照order排序
+                const validTodos = data.todos
+                    .map((todo: ServerTodo) => ({
+                        id: todo.id,
+                        text: todo.text || '',
+                        completed: Boolean(todo.completed),
+                        color: todo.color || '#F0E6FA',
+                        order: Number(todo.order) || 0
+                    }))
+                    .sort((a: Todo, b: Todo) => a.order - b.order);
 
                 console.log('Processed todos:', validTodos);
                 setLastSync(new Date());
@@ -272,8 +274,12 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
 
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
+                    console.error('Upload error:', errorData);
                     throw new Error(errorData.details || '同步失败');
                 }
+
+                const data = await response.json();
+                console.log('Upload response:', data);
 
                 setLastSync(new Date());
                 localStorage.setItem('lastSync', new Date().toISOString());

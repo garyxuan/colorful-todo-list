@@ -4,9 +4,19 @@
  * @Description: 
  */
 import type { Metadata, Viewport } from 'next'
-import { GeistSans } from 'geist/font/sans'
+import { Inter } from 'next/font/google'
 import './globals.css'
-import { Providers } from '@/components/providers'
+import { SyncProvider } from './contexts/SyncContext'
+
+// 预加载 Inter 字体
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',  // 使用字体交换以提高性能
+  preload: true,
+})
+
+// 根据环境确定图标路径前缀
+const iconPrefix = process.env.GITHUB_ACTIONS ? '.' : '';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -16,9 +26,6 @@ export const viewport: Viewport = {
   userScalable: true,
   viewportFit: 'cover',
 }
-
-// 根据环境确定图标路径前缀
-const iconPrefix = process.env.GITHUB_ACTIONS ? '.' : '';
 
 export const metadata: Metadata = {
   title: 'Colorful Todo List',
@@ -57,13 +64,24 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en" className={GeistSans.className}>
+    <html lang="en" className={inter.className}>
+      <head>
+        {/* 预加载关键资源 */}
+        <link
+          rel="preload"
+          href="/api/auth/me"
+          as="fetch"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body>
-        <Providers>{children}</Providers>
+        <SyncProvider>
+          {children}
+        </SyncProvider>
       </body>
     </html>
   )

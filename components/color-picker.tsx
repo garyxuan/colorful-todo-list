@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, memo } from 'react'
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 
@@ -10,19 +10,24 @@ interface ColorPickerProps {
   onChange: (color: string) => void
 }
 
-export function ColorPicker({ label, color, onChange }: ColorPickerProps) {
+export const ColorPicker = memo(function ColorPicker({ label, color, onChange }: ColorPickerProps) {
   const [inputColor, setInputColor] = useState(color)
 
   useEffect(() => {
     setInputColor(color)
   }, [color])
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputColor(e.target.value)
-    if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
-      onChange(e.target.value)
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const newColor = e.target.value
+    setInputColor(newColor)
+    if (/^#[0-9A-F]{6}$/i.test(newColor)) {
+      onChange(newColor)
     }
-  }
+  }, [onChange])
+
+  const handleColorChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(e.target.value)
+  }, [onChange])
 
   return (
     <div className="flex items-center space-x-2">
@@ -33,7 +38,7 @@ export function ColorPicker({ label, color, onChange }: ColorPickerProps) {
         id={`${label}-color`}
         type="color"
         value={color}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={handleColorChange}
         className="w-10 h-10 p-0 border-none"
       />
       <Input
@@ -46,5 +51,5 @@ export function ColorPicker({ label, color, onChange }: ColorPickerProps) {
       />
     </div>
   )
-}
+})
 
