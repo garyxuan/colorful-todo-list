@@ -9,6 +9,15 @@ interface Preferences {
     endColor: string;
 }
 
+// 定义服务器返回的 Todo 类型
+interface ServerTodo {
+    id: string;
+    text?: string;
+    completed?: boolean;
+    color?: string;
+    order?: number;
+}
+
 const defaultPreferences: Preferences = {
     startColor: '#F0E6FA',
     endColor: '#E0F2FE'
@@ -237,7 +246,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
                 }
 
                 // 确保每个todo都有必要的字段
-                const validTodos = data.todos.map((todo: any) => ({
+                const validTodos = data.todos.map((todo: ServerTodo) => ({
                     id: todo.id,
                     text: todo.text || '',
                     completed: Boolean(todo.completed),
@@ -276,7 +285,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
         } finally {
             setIsLoading(false);
         }
-    }, [token, isLoggedIn, API_BASE_URL]);
+    }, [token, isLoggedIn]);
 
     return (
         <SyncContext.Provider
