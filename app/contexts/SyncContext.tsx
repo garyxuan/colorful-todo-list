@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { Todo } from '@/types/todo';
-import { API_BASE_URL } from '@/lib/api-config';
+import { useApiBaseUrl } from '@/lib/api-config';
 
 interface Preferences {
     startColor: string;
@@ -52,6 +52,7 @@ const SyncContext = createContext<{
 });
 
 export function SyncProvider({ children }: { children: React.ReactNode }) {
+    const apiBaseUrl = useApiBaseUrl();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userEmail, setUserEmail] = useState<string | null>(null);
     const [lastSync, setLastSync] = useState<Date | null>(null);
@@ -104,7 +105,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
             setToken(token);
 
             // 获取用户信息
-            const response = await fetch(`${API_BASE_URL}/auth/me`, {
+            const response = await fetch(`${apiBaseUrl}/auth/me`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -142,7 +143,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
     const login = useCallback(async (email: string) => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/auth`, {
+            const response = await fetch(`${apiBaseUrl}/auth`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -189,7 +190,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
 
         setIsLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/preferences`, {
+            const response = await fetch(`${apiBaseUrl}/preferences`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -226,7 +227,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
             if (todos.length === 0) {
                 // 如果传入空数组，则从服务器获取数据
                 console.log('Fetching todos from server...');
-                const response = await fetch(`${API_BASE_URL}/todos`, {
+                const response = await fetch(`${apiBaseUrl}/todos`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -263,7 +264,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
             } else {
                 // 上传本地数据到云端
                 console.log('Uploading todos to server:', todos);
-                const response = await fetch(`${API_BASE_URL}/todos`, {
+                const response = await fetch(`${apiBaseUrl}/todos`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

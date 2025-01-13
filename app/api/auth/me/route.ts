@@ -11,6 +11,7 @@ const allowedOrigins = [
     'https://garyxuan.github.io',
     'http://localhost:3000',
     'http://localhost:4000',
+    'http://localhost:3001',
     'https://colorful-todo-list-git-main-garyxuans-projects.vercel.app',
     'https://colorful-todo-list-kappa.vercel.app'
 ];

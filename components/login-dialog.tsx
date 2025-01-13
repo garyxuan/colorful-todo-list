@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { API_BASE_URL } from '@/lib/api-config';
+import { useApiBaseUrl } from '@/lib/api-config';
 
 interface LoginDialogProps {
     open: boolean;
@@ -18,6 +18,7 @@ interface LoginDialogProps {
 }
 
 export function LoginDialog({ open, onOpenChange, onLoginSuccess }: LoginDialogProps) {
+    const apiBaseUrl = useApiBaseUrl();
     const [email, setEmail] = useState('');
     const [code, setCode] = useState('');
     const [loading, setLoading] = useState(false);
@@ -36,9 +37,9 @@ export function LoginDialog({ open, onOpenChange, onLoginSuccess }: LoginDialogP
 
         try {
             console.log('Sending code to:', email);
-            console.log('API URL:', `${API_BASE_URL}/auth/send-code`);
+            console.log('API URL:', `${apiBaseUrl}/auth/send-code`);
 
-            const response = await fetch(`${API_BASE_URL}/auth/send-code`, {
+            const response = await fetch(`${apiBaseUrl}/auth/send-code`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -88,7 +89,7 @@ export function LoginDialog({ open, onOpenChange, onLoginSuccess }: LoginDialogP
         setError('');
 
         try {
-            const response = await fetch(`${API_BASE_URL}/auth`, {
+            const response = await fetch(`${apiBaseUrl}/auth`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
